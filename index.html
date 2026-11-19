@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Tour Guide Passport — Quiz Adventure</title>
+  <meta name="description" content="A fun, travel-themed interactive quiz to master Czech history, European art, geography, and tourist guiding." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%231B365D' stroke='%23E09F3E' stroke-width='4'/%3E%3Cpolygon points='32,12 39,32 32,52 25,32' fill='%23D95D39'/%3E%3Cpolygon points='32,12 39,32 32,32' fill='%23FAF6EE'/%3E%3Ccircle cx='32' cy='32' r='4' fill='%23E09F3E'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Confetti celebration canvas -->
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Subtle background travel motifs -->
+  <div class="bg-decor" aria-hidden="true">
+    <svg class="bg-compass" viewBox="0 0 200 200" fill="none">
+      <circle cx="100" cy="100" r="90" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 6" />
+      <circle cx="100" cy="100" r="68" stroke="currentColor" stroke-width="1" />
+      <path d="M100 18L112 88L182 100L112 112L100 182L88 112L18 100L88 88L100 18Z" stroke="currentColor" stroke-width="1.5" />
+    </svg>
+  </div>
+
+  <main class="app-shell">
+    <!-- ==================== START SCREEN ==================== -->
+    <section id="screen-start" class="screen screen--active" aria-labelledby="app-title">
+      <div class="passport-card">
+        <div class="passport-header">
+          <div class="passport-badge">
+            <svg class="compass-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <circle cx="24" cy="24" r="21" stroke="currentColor" stroke-width="2.5" />
+              <circle cx="24" cy="24" r="16" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3" opacity="0.6" />
+              <polygon points="24,8 29,24 24,40 19,24" fill="#D95D39" />
+              <polygon points="24,8 29,24 24,24" fill="#FAF6EE" />
+              <circle cx="24" cy="24" r="3" fill="#E09F3E" />
+            </svg>
+            <span class="passport-label">OFFICIAL GUIDE PASSPORT</span>
+          </div>
+          <div class="stamp-pill" id="total-bank-badge">120 Questions</div>
+        </div>
+
+        <h1 id="app-title" class="hero-title">Tour Guide<br /><span>Quiz Adventure</span></h1>
+        <p class="hero-subtitle">
+          Pack your knowledge! Test yourself on Czech heritage, European art, geography, and guiding essentials — and review every mistake to master the exam.
+        </p>
+
+        <!-- Topic Selector -->
+        <div class="setup-block">
+          <div class="setup-label-row">
+            <label class="setup-label">1. Choose your destination (Topic)</label>
+            <span class="setup-hint" id="available-count-hint">120 available</span>
+          </div>
+          <div class="topic-grid" id="topic-grid" role="radiogroup" aria-label="Choose quiz topic">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </div>
+
+        <!-- Question Count Selector -->
+        <div class="setup-block">
+          <div class="setup-label-row">
+            <label class="setup-label" for="custom-count-input">2. How many questions?</label>
+            <span class="setup-hint" id="selected-count-label">10 questions</span>
+          </div>
+          <div class="count-pills" id="count-pills" role="group" aria-label="Preset question counts">
+            <!-- Populated dynamically by app.js -->
+          </div>
+          <div class="custom-count-row">
+            <span class="custom-count-text">Or pick an exact number:</span>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" id="btn-count-minus" aria-label="Decrease question count">−</button>
+              <input type="number" id="custom-count-input" min="1" max="120" value="10" inputmode="numeric" aria-label="Custom number of questions" />
+              <button type="button" class="stepper-btn" id="btn-count-plus" aria-label="Increase question count">+</button>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" id="btn-start" class="btn btn-primary btn-lg btn-start">
+          <span>Start Expedition</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+
+        <p class="footer-note">Questions and answer choices are shuffled every expedition.</p>
+      </div>
+    </section>
+
+    <!-- ==================== QUIZ SCREEN ==================== -->
+    <section id="screen-quiz" class="screen" aria-live="polite">
+      <header class="quiz-hud">
+        <button type="button" id="btn-quit" class="icon-btn" aria-label="Back to start screen" title="Back to start">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span>Exit</span>
+        </button>
+
+        <div class="hud-stats">
+          <div class="hud-pill hud-progress-text" id="hud-counter">1 / 10</div>
+          <div class="hud-pill hud-score" id="hud-score">★ 0</div>
+          <div class="hud-pill hud-streak" id="hud-streak" aria-label="Current streak">
+            <span class="streak-flame">🔥</span>
+            <span id="streak-value">0</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Travel Route Progress Bar -->
+      <div class="route-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar-container">
+        <div class="route-track">
+          <div class="route-fill" id="route-fill"></div>
+          <div class="route-marker" id="route-marker" aria-hidden="true">✈️</div>
+        </div>
+      </div>
+
+      <!-- Streak Milestone Toast -->
+      <div id="streak-toast" class="streak-toast" aria-live="assertive"></div>
+
+      <!-- Question Card -->
+      <article class="question-card" id="question-card">
+        <div class="question-meta">
+          <span class="topic-tag" id="question-topic">Czech History</span>
+          <span class="question-id-tag" id="question-id">#1</span>
+        </div>
+
+        <h2 class="question-text" id="question-text">Loading question...</h2>
+
+        <div class="options-list" id="options-list" role="group" aria-label="Answer choices">
+          <!-- Buttons rendered by app.js -->
+        </div>
+
+        <!-- Immediate Feedback Panel -->
+        <div class="feedback-banner" id="feedback-banner" hidden>
+          <div class="feedback-icon" id="feedback-icon" aria-hidden="true">✓</div>
+          <div class="feedback-body">
+            <div class="feedback-title" id="feedback-title">Spot on!</div>
+            <div class="feedback-detail" id="feedback-detail"></div>
+          </div>
+        </div>
+
+        <div class="quiz-actions" id="quiz-actions" hidden>
+          <button type="button" id="btn-next" class="btn btn-primary btn-lg">
+            <span id="btn-next-label">Next Stop</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <!-- ==================== RESULTS SCREEN ==================== -->
+    <section id="screen-results" class="screen" aria-labelledby="results-title">
+      <div class="results-card">
+        <div class="results-top">
+          <div class="passport-stamp" id="rank-stamp">
+            <span class="stamp-top">PASSPORT STAMPED</span>
+            <span class="stamp-emoji" id="rank-emoji">🏆</span>
+            <span class="stamp-rank" id="rank-title">Master Tour Guide</span>
+          </div>
+
+          <h2 id="results-title" class="results-heading">Expedition Complete!</h2>
+          <p class="results-subtitle" id="results-subtitle">You navigated through the tour like a pro.</p>
+
+          <!-- Circular Score Ring + Key Metrics -->
+          <div class="results-summary-grid">
+            <div class="score-ring-wrap">
+              <svg class="score-ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="score-ring-bg" cx="60" cy="60" r="50" />
+                <circle class="score-ring-fill" id="score-ring-fill" cx="60" cy="60" r="50" />
+              </svg>
+              <div class="score-ring-center">
+                <span class="score-percent" id="res-percent">0%</span>
+                <span class="score-sub">Accuracy</span>
+              </div>
+            </div>
+
+            <div class="stats-stack">
+              <div class="stat-box">
+                <span class="stat-label">Score</span>
+                <span class="stat-value" id="res-score">0 / 10</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-label">Best Streak</span>
+                <span class="stat-value" id="res-streak">🔥 0</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-label">Missed</span>
+                <span class="stat-value stat-value--missed" id="res-missed">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Action Buttons -->
+          <div class="results-actions">
+            <button type="button" id="btn-retry-missed" class="btn btn-accent" hidden>
+              <span>Practice Missed Questions</span>
+              <span class="btn-badge" id="retry-missed-count">0</span>
+            </button>
+            <button type="button" id="btn-play-again" class="btn btn-primary">
+              <span>New Expedition</span>
+            </button>
+            <button type="button" id="btn-back-home" class="btn btn-secondary">
+              <span>Change Settings</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mistakes Study Review -->
+        <div class="review-section" id="review-section">
+          <div class="review-header">
+            <h3 id="review-heading">Study Log — Review Your Mistakes</h3>
+            <p id="review-subtext">Compare your pick with the right answer so it sticks next time.</p>
+          </div>
+
+          <div id="mistakes-list" class="mistakes-list">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
