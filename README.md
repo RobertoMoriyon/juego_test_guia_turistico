@@ -3,7 +3,7 @@
 A fun, mobile-friendly, travel-themed quiz game in English built with plain HTML, CSS, and JavaScript — ready to deploy directly to **GitHub Pages** with zero build steps.
 
 ## Features
-- **120 curated questions** covering Czech History, Art & Czech Heritage, European History & Art, European Geography, and Tourism & Guide Law.
+- **353 curated questions** covering Czech History, Art & Czech Heritage, European History & Art, Geography & Landmarks, and Tourism & Guide Law.
 - **Custom quiz length**: Choose 10, 20, 30, 50, All, or any exact number of questions, plus filter by topic.
 - **Shuffled questions & answers** every round so you truly learn the content.
 - **Instant feedback, streaks & celebrations**: Animated travel progress route, live streak counter, confetti bursts, and Tour Guide Passport rank stamps.
